@@ -6,6 +6,7 @@
  */
 
 require_once dirname(__FILE__) . '/handle-booking-form.php';
+require_once dirname(__FILE__) . '/handle-new-booking.php';
 
 function custom_rewrite_booking_confirmation()
 {
