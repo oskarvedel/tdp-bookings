@@ -61,13 +61,13 @@ function notify_supplier($post)
     $email_body .= "Unit price: " . $unit_price . "\n";
     $email_body .= "Department address: " . $department_address . "\n";
 
-    email_admin($email_body, 'New booking created: ' . $post->post_title);
-
     $to = $supplier_email;
     $subject = "Ny booking fra Tjekdepot.dk";
     $headers = 'From: system@tjekdepot.dk <system@tjekdepot.dk>' . "\r\n";
 
     wp_mail($to, $subject, $email_body, $headers);
+
+    update_post_meta($post->ID, 'booking_notification_email_sent_to_supplier', true)
 }
 
 function notify_admin($post)
