@@ -5,6 +5,8 @@
  * Version: 1.0
  */
 
+require_once dirname(__FILE__) . '/handle-booking-form.php';
+
 function custom_rewrite_booking_confirmation()
 {
     add_rewrite_rule('^reservation/confirmation/([0-9]+)/?$', 'index.php?pagename=reservation-confirmation&booking_id=$matches[1]', 'top');
