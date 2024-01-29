@@ -3,7 +3,7 @@
 
 function handle_new_booking($post_id)
 {
-    trigger_error('handle_new_booking called', E_USER_NOTICE);
+    trigger_error('handle_new_booking triggered', E_USER_NOTICE);
     $post = get_post($post_id);
     if ($post->post_type === 'booking') {
         //get all the fields via post meta calls
@@ -52,7 +52,7 @@ add_action('handle_new_booking_cron', 'handle_new_booking');
 function schedule_new_booking_handler($new_status, $old_status, $post)
 {
     if ($post->post_type === 'booking' && 'publish' === $new_status && 'publish' !== $old_status) {
-        trigger_error('handle_new_booking scheduler triggered a handle_new_booking job', E_USER_NOTICE);
+        trigger_error('handle_new_booking scheduler scheduled a handle_new_booking job', E_USER_NOTICE);
         wp_schedule_single_event(time() + 20, 'handle_new_booking_cron', array($post->ID));
     }
 }
