@@ -89,8 +89,8 @@ function notify_admin($post)
     $department_address = get_post_meta($post->ID, 'department_address', true);
 
     // Construct the email body
-    $email_body = "<b>Ny booking:</b> " . $post->post_title . "<br><br>"
-    $email_body .= "<b>Tidspunkt:</b> " . date('Y-m-d H:i:s') . "<br><br>"
+    $email_body = "<b>Ny booking:</b> " . $post->post_title . "<br><br>";
+    $email_body .= "<b>Tidspunkt:</b> " . date('Y-m-d H:i:s') . "<br><br>";
 
     $email_body .= "<h3>Enhed</h3>";
     $email_body .= "<b>Enhedens pris:</b> " . $unit_price . "<br>";
@@ -111,7 +111,7 @@ function notify_admin($post)
 
     $email_body .= "<h3>Diverse</h3>";
     $email_body .= "<b>Link til enhed:</b> " . $unit_id . "<br>";
-    $email_body .= "<b>Eventuelt booking-link:</b> " . $booking_link . "<br><br>"
+    $email_body .= "<b>Eventuelt booking-link:</b> " . $booking_link . "<br><br>";
 
     $email_body .= "<b>Udlejerens adresse:</b> " . $department_address . "<br>";
     $email_body .= "<b>Er booking email til leverandøren deaktiveret?</b> " . $supplier_booking_email_disabled . "<br>";
