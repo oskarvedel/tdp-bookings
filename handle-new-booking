@@ -8,4 +8,4 @@ function handle_new_booking($new_status, $old_status, $post)
         send_email('New booking created: ' . $post->post_title, 'New booking created');
     }
 }
-add_action('transition_post_status', 'handle_new_booking', 10, 3);
+add_action('transition_post_status', 'handle_new_booking', 1, 3);
