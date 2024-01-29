@@ -54,16 +54,3 @@ add_filter('template_include', 'custom_template_include', 99);
 //     }
 // }
 // add_action('transition_post_status', 'handle_new_booking', 10, 3);
-
-
-function handle_new_booking($new_status, $old_status, $post)
-{
-    if ($post->post_type === 'booking') {
-        if ('publish' === $new_status && 'publish' !== $old_status) {
-            trigger_error('handle_new_booking called', E_USER_NOTICE);
-            error_log('New booking created: ' . $post->post_title);
-            send_email('New booking created: ' . $post->post_title, 'New booking created');
-        }
-    }
-}
-add_action('transition_post_status', 'handle_new_booking', 11, 3);
