@@ -22,7 +22,6 @@ function schedule_new_booking_handler($new_status, $old_status, $post)
 }
 add_action('transition_post_status', 'schedule_new_booking_handler', 10, 3);
 
-
 function notify_supplier($post)
 {
     $first_name = get_post_meta($post->ID, 'customer_first_name', true);
@@ -90,23 +89,33 @@ function notify_admin($post)
     $department_address = get_post_meta($post->ID, 'department_address', true);
 
     // Construct the email body
-    $email_body = "New booking created: " . $post->post_title . "\n\n";
-    $email_body .= "Time of booking: " . date('Y-m-d H:i:s') . "\n";
-    $email_body .= "Customer first name: " . $first_name . "\n";
-    $email_body .= "Customer last name: " . $last_name . "\n";
-    $email_body .= "Customer email address: " . $email . "\n";
-    $email_body .= "Customer phone: " . $phone . "\n";
-    $email_body .= "Move in date: " . $move_in_date . "\n";
-    $email_body .= "Move in date unknown: " . $move_in_date_unknown . "\n";
-    $email_body .= "Supplier booking email disabled: " . $supplier_booking_email_disabled . "\n";
-    $email_body .= "Direct booking active: " . $direct_booking_active . "\n";
-    $email_body .= "Unit link: " . $unit_id . "\n";
-    $email_body .= "Booking link: " . $booking_link . "\n";
-    $email_body .= "Supplier email address: " . $supplier_email . "\n";
-    $email_body .= "Department name: " . $lokation_name . "\n";
-    $email_body .= "Rel lokation: " . $rel_lokation['ID'] . "\n";
-    $email_body .= "Unit price: " . $unit_price . "\n";
-    $email_body .= "Department address: " . $department_address . "\n";
+    $email_body = "Ny booking: " . $post->post_title . "\n\n";
+    $email_body .= "Tidspunkt: " . date('Y-m-d H:i:s') . "\n\n";
 
-    email_admin($email_body, 'New booking created: ' . $post->post_title);
+    $email_body .= "<h3>Enhed</h3>";
+    $email_body .= "Enhedens pris: " . $unit_price . "\n";
+    $email_body .= "Lokationens navn: " . $lokation_name . "\n";
+    $email_body .= "Lokationens ID: " . $rel_lokation['ID'] . "\n";
+    $email_body .= "Udlejerens email-adresse: " . $supplier_email . "\n";
+
+    $email_body .= "<h3>Kunde</h3>";
+    $email_body .= "Kundens fornavn: " . $first_name . "\n";
+    $email_body .= "Kundens efternavn: " . $last_name . "\n";
+    $email_body .= "Kundens emailadresse: " . $email . "\n";
+    $email_body .= "Kundens telefonnummer: " . $phone . "\n";
+
+    $email_body .= "<h3>Indflytningsdato</h3>";
+    $email_body .= "Indflytningsdato: " . $move_in_date . "\n";
+    $email_body .= "Indflytningsdato ukendt?: " . $move_in_date_unknown . "\n";
+
+
+    $email_body .= "<h3>Misc</h3>";
+    $email_body .= "Link til enhed: " . $unit_id . "\n";
+    $email_body .= "Eventuelt booking-link: " . $booking_link . "\n\n";
+
+    $email_body .= "Udlejerens adresse: " . $department_address . "\n";
+    $email_body .= "Er booking email til leverandøren deaktiveret? " . $supplier_booking_email_disabled . "\n";
+    $email_body .= "Er direkte booking aktiv? " . $direct_booking_active . "\n";
+
+    email_admin($email_body, 'Ny booking: ' . $post->post_title);
 }
