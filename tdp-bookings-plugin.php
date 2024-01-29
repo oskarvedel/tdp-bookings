@@ -32,3 +32,5 @@ function custom_template_include($template)
     return $template;
 }
 add_filter('template_include', 'custom_template_include', 99);
+
+// define('DISABLE_WP_CRON', true);
