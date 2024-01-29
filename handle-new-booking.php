@@ -4,7 +4,6 @@
 function handle_new_booking($post_id)
 {
     trigger_error('handle_new_booking called', E_USER_NOTICE);
-    xdebug_break();
     $post = get_post($post_id);
     if ($post->post_type === 'booking') {
         //get all the fields via post meta calls
