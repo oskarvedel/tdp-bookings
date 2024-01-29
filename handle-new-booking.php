@@ -67,7 +67,7 @@ function notify_supplier($post)
 
     wp_mail($to, $subject, $email_body, $headers);
 
-    update_post_meta($post->ID, 'booking_notification_email_sent_to_supplier', true)
+    update_post_meta($post->ID, 'booking_notification_email_sent_to_supplier', true);
 }
 
 function notify_admin($post)
