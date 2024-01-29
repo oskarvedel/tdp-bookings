@@ -57,3 +57,5 @@ function schedule_new_booking_handler($new_status, $old_status, $post)
     }
 }
 add_action('transition_post_status', 'schedule_new_booking_handler', 10, 3);
+
+define('DISABLE_WP_CRON', true);
