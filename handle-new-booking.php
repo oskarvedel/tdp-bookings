@@ -43,7 +43,9 @@ function handle_new_booking($post_id)
         $email_body .= "Unit price: " . $unit_price . "\n";
         $email_body .= "Department address: " . $department_address . "\n";
 
-        send_email($email_body, 'New booking created: ' . $post->post_title);
+        email_admin($email_body, 'New booking created: ' . $post->post_title);
+
+        //
     }
 }
 
