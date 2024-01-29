@@ -54,7 +54,7 @@ function schedule_new_booking_handler($new_status, $old_status, $post)
 {
     if ($post->post_type === 'booking' && 'publish' === $new_status && 'publish' !== $old_status) {
         trigger_error('handle_new_booking scheduler triggered a handle_new_booking job', E_USER_NOTICE);
-        wp_schedule_single_event(time() + 10, 'handle_new_booking_cron', array($post->ID));
+        wp_schedule_single_event(time() + 20, 'handle_new_booking_cron', array($post->ID));
     }
 }
 add_action('transition_post_status', 'schedule_new_booking_handler', 10, 3);
