@@ -8,7 +8,6 @@ function handle_new_booking($new_status, $old_status, $post)
             trigger_error('handle_new_booking called', E_USER_NOTICE);
             //allow some time for the booking fields to be updated
             sleep(10);
-            error_log('New booking created: ' . $post->post_title);
 
             //get all the fields via post meta calls
             $first_name = get_post_meta($post->ID, 'customer_first_name', true);
@@ -26,7 +25,6 @@ function handle_new_booking($new_status, $old_status, $post)
             $rel_lokation = get_post_meta($post->ID, 'rel_lokation', true);
             $unit_price = get_post_meta($post->ID, 'unit_price', true);
             $department_address = get_post_meta($post->ID, 'department_address', true);
-
 
             // Construct the email body
             $email_body = "New booking created: " . $post->post_title . "\n\n";
@@ -47,7 +45,7 @@ function handle_new_booking($new_status, $old_status, $post)
             $email_body .= "Unit price: " . $unit_price . "\n";
             $email_body .= "Department address: " . $department_address . "\n";
 
-            send_email('New booking created: ' . $post->post_title, $email_body);
+            send_email($email_body, 'New booking created: ' . $post->post_title);
         }
     }
 }
