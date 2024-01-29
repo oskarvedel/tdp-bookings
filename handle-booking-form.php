@@ -103,9 +103,6 @@ function handle_booking_form()
         'post_title' => $post_title,
     ));
 
-    // Redirect to a thank you page or back to the form with a success message
-    // wp_redirect(home_url('/thank-you')); // Replace '/thank-you' with your desired redirect URL
-
     //return success message, include the booking id
     echo json_encode(array(
         'success' => true,
