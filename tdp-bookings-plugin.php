@@ -58,9 +58,9 @@ add_filter('template_include', 'custom_template_include', 99);
 
 function handle_new_booking2($new_status, $old_status, $post)
 {
-    trigger_error('handle_new_booking called', E_USER_NOTICE);
     if ('booking' === $post->post_type) {
         if ('publish' === $new_status && 'publish' !== $old_status) {
+            trigger_error('handle_new_booking called', E_USER_NOTICE);
             error_log('New booking created: ' . $post->post_title);
             send_email('New booking created: ' . $post->post_title, 'New booking created');
         }
