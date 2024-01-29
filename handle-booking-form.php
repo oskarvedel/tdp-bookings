@@ -86,6 +86,12 @@ function handle_booking_form()
         )
     ));
 
+    //return success message, include the booking id
+    echo json_encode(array(
+        'success' => true,
+        'booking_id' => $booking_post_id,
+    ));
+
     //update booking post title
     $rel_type = get_post_meta($unit_id, 'rel_type', true);
     $size = "";
@@ -101,12 +107,6 @@ function handle_booking_form()
     wp_update_post(array(
         'ID' => $booking_post_id,
         'post_title' => $post_title,
-    ));
-
-    //return success message, include the booking id
-    echo json_encode(array(
-        'success' => true,
-        'booking_id' => $booking_post_id,
     ));
 
     exit();
