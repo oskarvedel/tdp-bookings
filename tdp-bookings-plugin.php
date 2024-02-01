@@ -32,3 +32,30 @@ function custom_template_include($template)
     return $template;
 }
 add_filter('template_include', 'custom_template_include', 99);
+
+
+//add admin plugin button to trigger email_test function
+function add_email_test_button($links)
+{
+    $email_test_link = '<a href="' . admin_url('admin-post.php?action=email_test') . '">Run email_test function</a>';
+    array_unshift($links, $email_test_link);
+    return $links;
+}
+add_filter('plugin_action_links_tdp-bookings/tdp-bookings-plugin.php', 'add_email_test_button');
+
+function email_test()
+{
+    global $supplier_email_template;
+    // xdebug_break();
+    $to = "oskar.vedel@gmail.com";
+    $subject = "Ny booking fra Tjekdepot.dk";
+    $headers = array(
+        'From: system@tjekdepot.dk <system@tjekdepot.dk>',
+        'Content-Type: text/html; charset=UTF-8',
+    );
+
+    wp_mail($to, $subject, $supplier_email_template, $headers);
+    wp_redirect(admin_url('plugins.php?s=tdp&plugin_status=all'));
+    exit;
+}
+add_action('admin_post_email_test', 'email_test');

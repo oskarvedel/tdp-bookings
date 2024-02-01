@@ -66,6 +66,8 @@ function notify_supplier($post)
 
     wp_mail($to, $subject, $email_body, $headers);
 
+    // wp_mail($to, $subject, $supplier_email_template, $headers);
+
     update_post_meta($post->ID, 'booking_notification_email_sent_to_supplier', true);
 }
 
@@ -90,7 +92,7 @@ function notify_admin($post)
 
     // Construct the email body
     $email_body = "<b>Ny booking:</b> " . $post->post_title . "<br><br>";
-    $email_body .= "<b>Tidspunkt:</b> " . date('Y-m-d H:i:s') . "<br><br>";
+    $email_body .= "<b>Tidspunkt:</b> " . date('Y-m-d H:i:s') . "<br>";
 
     $email_body .= "<h3>Enhed</h3>";
     $email_body .= "<b>Enhedens pris:</b> " . $unit_price . "<br>";
@@ -108,7 +110,6 @@ function notify_admin($post)
     $email_body .= "<b>Indflytningsdato:</b> " . $move_in_date . "<br>";
     $email_body .= "<b>Indflytningsdato ukendt?:</b> " . $move_in_date_unknown . "<br>";
 
-
     $email_body .= "<h3>Diverse</h3>";
     $email_body .= "<b>Link til enhed:</b> " . $unit_id . "<br>";
     $email_body .= "<b>Eventuelt booking-link:</b> " . $booking_link . "<br><br>";
@@ -119,3 +120,81 @@ function notify_admin($post)
 
     email_admin($email_body, 'Ny booking: ' . $post->post_title);
 }
+
+
+$supplier_email_template = '<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+    body {
+        background-color: #f7f7f7; /* Slightly darker background */
+        font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+    }
+    .header, .content, .footer {
+        width: 600px;
+        margin: 0 auto;
+    }
+    .header img, .content img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border: 0;
+        outline: none;
+    }
+    .content {
+        height: 100vh;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffff;
+        //set the padding to 1rem on all sides
+        padding: 1rem;
+        margin: 1rem;
+    }
+    ?>
+</style>
+</head>
+<body>
+    <div class="header">
+        <img src="header-image-url.png" alt="">
+    </div>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td>
+        <div class="content">
+            <table class="content-table" align="center" cellpadding="0" cellspacing="0" border="0" style="width: 600px;">
+                <tr>
+                    <td class="header">
+                        <img src="header-image-url.png" alt="">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h1>Ny booking via tjekdepot.dk</h1>
+                        <img src="content-image-url.png" alt="">
+                        <p>We want to wish you much health, love, happiness. Be free in your dreams. Wish you to always stay young, to have original and brave ideas, may you have a great deal of success in everything you do! Be happy!</p>
+                        <h2>ENJOY 20% OFF your next purchase</h2>
+                        <p>GRAB YOUR CODE: DVS-650</p>
+                        <p>VALID THROUGH: 30.09.2021</p>
+                        <a href="#" class="button">SHOP NOW</a>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </td>
+    </tr>
+</table>
+    <div class="footer">
+        <p>tjekdepot.dk</p>
+        <p>Mejlgade 16, 8000 Aarhus C</p>
+        <a href="#">Besøg os</a> | <a href="#">Privatlivspolitik</a> | <a href="#">Vilkår</a>
+    </div>
+</body>
+</html>
+';
