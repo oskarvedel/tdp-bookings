@@ -25,6 +25,14 @@ add_action('transition_post_status', 'schedule_new_booking_handler', 10, 3);
 function notify_supplier($booking_post)
 {
     $booking_info = gather_booking_info($booking_post);
+
+    if ($booking_info['supplier_booking_email_disabled'] === 'true') {
+        return;
+    }
+
+    if ($booking_info['supplier_booking_email_disabled'] === 'true') {
+        return;
+    }
     // Construct the email body
     $email_body = "New booking created: " . $post->post_title . "<br><br>";
     $email_body .= "Time of booking: " . date('Y-m-d H:i:s') . "<br>";
