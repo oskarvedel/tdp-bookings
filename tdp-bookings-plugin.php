@@ -59,3 +59,38 @@ function email_test()
     exit;
 }
 add_action('admin_post_email_test', 'email_test');
+
+
+function send_missing_supplier_booking_emails()
+{
+    //get all bookings from the last 7 days
+    $args = array(
+        'post_type' => 'booking',
+        'date_query' => array(
+            array(
+                'after' => '7 days ago',
+            ),
+        ),
+    );
+    $bookings = get_posts($args);
+    foreach ($bookings as $booking) {
+        notify_supplier($booking);
+    }
+}
+
+function send_missing_admin_booking_emails()
+{
+    //get all bookings from the last 7 days
+    $args = array(
+        'post_type' => 'booking',
+        'date_query' => array(
+            array(
+                'after' => '7 days ago',
+            ),
+        ),
+    );
+    $bookings = get_posts($args);
+    foreach ($bookings as $booking) {
+        notify_admin($booking);
+    }
+}

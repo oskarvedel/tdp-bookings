@@ -26,11 +26,11 @@ function notify_supplier($booking_post)
 {
     $booking_info = gather_booking_info($booking_post);
 
-    if ($booking_info['supplier_booking_email_disabled'] === 'true') {
+    if ($booking_info['booking_notification_email_sent_to_supplier']) {
         return;
     }
 
-    if ($booking_info['supplier_booking_email_disabled'] === 'true') {
+    if ($booking_info['supplier_booking_email_disabled']) {
         return;
     }
     // Construct the email body
@@ -65,11 +65,15 @@ function notify_supplier($booking_post)
 
     update_post_meta($post->ID, 'booking_notification_email_sent_to_supplier', true);
 
-    trigger_error('Email sent to supplier', E_USER_NOTICE);
+    trigger_error('Sent booking email notification to supplier', E_USER_NOTICE);
 }
 
 function notify_admin($post)
 {
+    if ($booking_info['booking_notification_email_sent_to_admin']) {
+        return;
+    }
+
     $booking_info = gather_booking_info($post);
 
     // Construct the email body
@@ -101,6 +105,8 @@ function notify_admin($post)
     $email_body .= "<b>Er direkte booking aktiv?</b> " . $booking_info['direct_booking_active'] . "<br>";
 
     email_admin($email_body, 'Ny booking: ' . $post->post_title);
+
+    trigger_error('Sent booking email notification to admin', E_USER_NOTICE);
 }
 
 function gather_booking_info($post)
