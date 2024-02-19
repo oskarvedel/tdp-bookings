@@ -26,59 +26,66 @@ function notify_supplier($booking_post)
 {
     $booking_info = gather_booking_info($booking_post);
 
-    if ($booking_info['booking_notification_email_sent_to_supplier']) {
+    $supplier_booking_email_disabled = get_post_meta($booking_post->ID, 'supplier_booking_email_disabled', true);
+    if ($supplier_booking_email_disabled) {
         return;
     }
 
-    if ($booking_info['supplier_booking_email_disabled']) {
+    $booking_notification_email_sent_to_supplier = get_post_meta($booking_post->ID, 'booking_notification_email_sent_to_supplier', true);
+    if ($booking_notification_email_sent_to_supplier) {
         return;
     }
+
     // Construct the email body
-    $email_body = "New booking created: " . $post->post_title . "<br><br>";
-    $email_body .= "Time of booking: " . date('Y-m-d H:i:s') . "<br>";
-    $email_body .= "Customer first name: " . $booking_info['first_name'] . "<br>";
-    $email_body .= "Customer last name: " . $booking_info['last_name'] . "<br>";
-    $email_body .= "Customer email address: " . $booking_info['email'] . "<br>";
-    $email_body .= "Customer phone: " . $booking_info['phone'] . "<br>";
-    $email_body .= "Move in date: " . $booking_info['move_in_date'] . "<br>";
-    $email_body .= "Move in date unknown: " . $booking_info['move_in_date_unknown'] . "<br>";
-    $email_body .= "Supplier booking email disabled: " . $booking_info['supplier_booking_email_disabled'] . "<br>";
-    $email_body .= "Direct booking active: " . $booking_info['direct_booking_active'] . "<br>";
-    $email_body .= "Unit link: " . $booking_info['unit_link'] . "<br>";
-    $email_body .= "Booking link: " . $booking_info['booking_link'] . "<br>";
-    $email_body .= "Supplier email address: " . $booking_info['supplier_email'] . "<br>";
-    $email_body .= "Department name: " . $booking_info['lokation_name'] . "<br>";
-    $email_body .= "Rel lokation: " . $booking_info['rel_lokation'] . "<br>";
-    $email_body .= "Unit price: " . $booking_info['unit_price'] . "<br>";
-    $email_body .= "Department address: " . $booking_info['department_address'] . "<br>";
+    $email_body = "<b>Ny reservation:</b> " . $booking_post->post_title . "<br><br>";
+    $email_body .= "<b>Tidspunkt:</b> " . $booking_info['time_of_booking'] . "<br>";
+
+    $email_body .= "<h3>Enhed</h3>";
+    $email_body .= "<b>Pris:</b> " . $booking_info['unit_price'] . "<br>";
+    $email_body .= "<b>Afdeling:</b> " . $booking_info['lokation_name'] . "<br>";
+
+    $email_body .= "<h3>Kunde</h3>";
+    $email_body .= "<b>Kundens navn:</b> " . $booking_info['first_name'] . " "  . $booking_info['last_name'] . "<br>";
+    $email_body .= "<b>Kundens email-adresse:</b> " . $booking_info['email'] . "<br>";
+    $email_body .= "<b>Kundens telefonnummer:</b> " . $booking_info['phone'] . "<br>";
+
+    $email_body .= "<h3>Indflytning</h3>";
+    $email_body .= "<b>Indflytningsdato:</b> " . $booking_info['move_in_date_string'] . "<br>";
+
+    $email_body .= "<h3>Diverse</h3>";
+    $email_body .= "<b>Enhedens ID:</b> " . $booking_info['unit_link'] . "<br>";
+    if ($booking_info['booking_link']) {
+        $email_body .= "<b>Booking-link:</b> " . $booking_info['booking_link'] . "<br>";
+    }
 
     $supplier_email = $booking_info['supplier_email'];
 
     $to = $supplier_email;
-    $subject = "Ny booking fra Tjekdepot.dk";
+    $subject = "Ny reservation fra Tjekdepot.dk";
     $headers = array(
-        'From: system@tjekdepot.dk <system@tjekdepot.dk>',
+        'From: tjekdepot.dk <system@tjekdepot.dk>',
         'Content-Type: text/html; charset=UTF-8',
     );
 
     wp_mail($to, $subject, $email_body, $headers);
-
-    update_post_meta($post->ID, 'booking_notification_email_sent_to_supplier', true);
+    update_post_meta($booking_post->ID, 'booking_notification_email_sent_to_supplier', "1");
 
     trigger_error('Sent booking email notification to supplier', E_USER_NOTICE);
 }
 
-function notify_admin($post)
+function notify_admin($booking_post)
 {
-    if ($booking_info['booking_notification_email_sent_to_admin']) {
+    $booking_notification_email_sent_to_admin = get_post_meta($booking_post->ID, 'booking_notification_email_sent_to_admin', true);
+
+    if ($booking_notification_email_sent_to_admin) {
         return;
     }
 
-    $booking_info = gather_booking_info($post);
+    $booking_info = gather_booking_info($booking_post);
 
     // Construct the email body
-    $email_body = "<b>Ny booking:</b> " . $post->post_title . "<br><br>";
-    $email_body .= "<b>Tidspunkt:</b> " . date('Y-m-d H:i:s') . "<br>";
+    $email_body = "<b>Ny reservation:</b> " . $booking_post->post_title . "<br><br>";
+    $email_body .= "<b>Tidspunkt for reservation:</b> " .  $booking_info['time_of_booking'] . "<br>";
 
     $email_body .= "<h3>Enhed</h3>";
     $email_body .= "<b>Enhedens pris:</b> " . $booking_info['unit_price'] . "<br>";
@@ -104,34 +111,48 @@ function notify_admin($post)
     $email_body .= "<b>Er booking email til leverandøren deaktiveret?</b> " . $booking_info['supplier_booking_email_disabled'] . "<br>";
     $email_body .= "<b>Er direkte booking aktiv?</b> " . $booking_info['direct_booking_active'] . "<br>";
 
-    email_admin($email_body, 'Ny booking: ' . $post->post_title);
+    email_admin($email_body, 'Ny reservation: ' . $booking_post->post_title);
+
+    update_post_meta($booking_post->ID, "booking_notification_email_sent_to_admin", "1");
 
     trigger_error('Sent booking email notification to admin', E_USER_NOTICE);
 }
 
 function gather_booking_info($post)
 {
+    $unit_link = get_post_meta($post->ID, 'unit_link', true);
+    $rel_type = get_post_meta($unit_link, 'rel_type', true);
     $first_name = get_post_meta($post->ID, 'customer_first_name', true);
     $last_name = get_post_meta($post->ID, 'customer_last_name', true);
     $email = get_post_meta($post->ID, 'customer_email_address', true);
     $phone = get_post_meta($post->ID, 'customer_phone', true);
+    $time_of_booking = get_post_meta($post->ID, 'time_of_booking', true);
     $move_in_date = get_post_meta($post->ID, 'move_in_date', true);
+    $move_in_date_string = get_post_meta($post->ID, 'move_in_date_string', true);
     $move_in_date_unknown = get_post_meta($post->ID, 'move_in_date_unknown', true);
     $supplier_booking_email_disabled = get_post_meta($post->ID, 'supplier_booking_email_disabled', true);
     $direct_booking_active = get_post_meta($post->ID, 'direct_booking_active', true);
-    $unit_link = get_post_meta($post->ID, 'unit_link', true);
     $booking_link = get_post_meta($post->ID, 'booking_link', true);
     $supplier_email = get_post_meta($post->ID, 'supplier_email_address', true);
     $lokation_name = get_post_meta($post->ID, 'department_name', true);
     $rel_lokation = get_post_meta($post->ID, 'rel_lokation', true);
     $unit_price = get_post_meta($post->ID, 'unit_price', true);
     $department_address = get_post_meta($post->ID, 'department_address', true);
+    $price = get_post_meta($unit_link, 'price', true);
+    $m2 = get_post_meta($rel_type, 'm2', true);
+    $m3 = get_post_meta($rel_type, 'm3', true);
+    $unit_type =  get_post_meta($rel_type, 'unit_type', true);
+    $unit_size_string = get_post_meta($unit_link, 'size_string', true);
+    $unit_type_string = get_post_meta($rel_type, 'type_string', true);
+
     return array(
         'first_name' => $first_name,
         'last_name' => $last_name,
         'email' => $email,
         'phone' => $phone,
+        'time_of_booking' => $time_of_booking,
         'move_in_date' => $move_in_date,
+        'move_in_date_string' => $move_in_date_string,
         'move_in_date_unknown' => $move_in_date_unknown,
         'supplier_booking_email_disabled' => $supplier_booking_email_disabled,
         'direct_booking_active' => $direct_booking_active,
@@ -141,10 +162,15 @@ function gather_booking_info($post)
         'lokation_name' => $lokation_name,
         'rel_lokation' => $rel_lokation,
         'unit_price' => $unit_price,
-        'department_address' => $department_address
+        'department_address' => $department_address,
+        'price' => $price,
+        'm2' => $m2,
+        'm3' => $m3,
+        'unit_type' => $unit_type,
+        'unit_size_string' => $unit_size_string,
+        'unit_type_string' => $unit_type_string,
     );
 }
-
 
 $supplier_email_template = '<!DOCTYPE html>
 <html lang="en">
@@ -200,7 +226,7 @@ $supplier_email_template = '<!DOCTYPE html>
                 </tr>
                 <tr>
                     <td>
-                        <h1>Ny booking via tjekdepot.dk</h1>
+                        <h1>Ny reservation fra tjekdepot.dk</h1>
                         <img src="content-image-url.png" alt="">
                         <p>We want to wish you much health, love, happiness. Be free in your dreams. Wish you to always stay young, to have original and brave ideas, may you have a great deal of success in everything you do! Be happy!</p>
                         <h2>ENJOY 20% OFF your next purchase</h2>

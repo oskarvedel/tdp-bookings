@@ -33,15 +33,13 @@ function handle_booking_form()
         wp_die('Please fill all required fields.');
     }
 
-    if ($_POST['move_in_date'] == "future") {
-        $move_in_date_unknown = true;
-        $move_in_date = new DateTime('3000-01-01');
-        $move_in_date = $move_in_date->format('m-d-Y');
-    } else {
-        $move_in_date_unknown = false;
-        $move_in_date = new DateTime($_POST['move_in_date']);
-        $move_in_date = $move_in_date->format('d-m-Y');
-    }
+    $move_in_date = get_move_in_date($_POST);
+
+    $move_in_date_string = construct_move_in_date_string($move_in_date);
+
+    $size_string = construct_size_string($unit_id);
+
+    $type_string = construct_unit_type_string($unit_id);
 
     // Validate each form field
     if (empty($first_name) || empty($last_name) || empty($email) || empty($phone) || empty($move_in_date)) {
@@ -73,8 +71,9 @@ function handle_booking_form()
             'customer_last_name' => $last_name,
             'customer_email_address' => $email,
             'customer_phone' => $phone,
-            'move_in_date' => $move_in_date,
-            'move_in_date_unknown' => $move_in_date_unknown,
+            'move_in_date' => $move_in_date[0],
+            'move_in_date_string' => $move_in_date_string,
+            'move_in_date_unknown' => $move_in_date[1],
             'supplier_booking_email_disabled' => $supplier_booking_email_disabled,
             'direct_booking_active' => $direct_booking_active,
             'unit_link' => $unit_id,
@@ -84,6 +83,8 @@ function handle_booking_form()
             'rel_lokation' => $rel_lokation_id,
             'unit_price' => $unit_price,
             'department_address' => $department_address,
+            'unit_size_string' => $size_string,
+            'unit_type_string' => $type_string,
         )
     ));
 
@@ -94,18 +95,8 @@ function handle_booking_form()
     ));
 
     //update booking post title
-    $rel_type = get_post_meta($unit_id, 'rel_type', true);
-    $size = "";
-    $size = get_post_meta($rel_type, 'm2', true);
-    $sizeunit = "m2";
-    if (!$size) {
-        $size = get_post_meta($rel_type, 'm3', true);
-        $sizeunit = "m3";
-    }
-    $size = str_replace('.', ',', $size);
 
-    $rel_type_title = get_the_title($rel_type);
-    $post_title = 'Booking #' . $booking_post_id . ': (' . $first_name . ' ' . $last_name . ') - ' . $rel_type_title . ' (Unit #' . $unit_id . ' - ' . $size . ' ' . $sizeunit . ')';
+    $post_title = 'Reservation #' . $booking_post_id . ': ' . $first_name . ' ' . $last_name . ' - ' . $type_string . ' (Enhed #' . $unit_id . ' - ' . $size_string . ')';
     wp_update_post(array(
         'ID' => $booking_post_id,
         'post_title' => $post_title,
@@ -114,5 +105,110 @@ function handle_booking_form()
     exit();
 }
 
+function get_move_in_date($post)
+{
+    if ($post['move_in_date'] == "future") {
+        $move_in_date_unknown = true;
+        $move_in_date = new DateTime('3000-01-01');
+        $move_in_date = $move_in_date->format('m-d-Y');
+    } else {
+        $move_in_date_unknown = false;
+        $move_in_date = new DateTime($post['move_in_date']);
+        $move_in_date = $move_in_date->format('d-m-Y');
+    }
+    return array($move_in_date, $move_in_date_unknown);
+}
+
+function construct_move_in_date_string($move_in_date)
+{
+
+    // Initialize the string to hold the move-in date information
+    $move_in_date_string = "";
+
+    // Check if the move-in date is unknown
+    if (!empty($move_in_date[1]) && $move_in_date[1]) {
+        // If move-in date is marked as unknown
+        return "Kunden har ikke angivet indflytningsdato";
+    }
+    //replace - with / in the date
+    $move_in_date = str_replace('-', '/', $move_in_date[0]);
+    // Create a DateTime object from the move-in date string
+    $move_in_date_obj = DateTime::createFromFormat('d/m/Y', $move_in_date);
+
+    // Format the move-in date in the desired format
+    $move_in_date = $move_in_date_obj->format('j. F Y');
+
+    // Translate the month name
+    $move_in_date_string = translate_month($move_in_date);
+
+    return $move_in_date_string;
+}
+
+function translate_month($date)
+{
+    $english_months = array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
+    $danish_months = array('januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'december');
+    return str_replace($english_months, $danish_months, $date);
+}
+
+function construct_size_string($unit_id)
+{
+    $rel_type = get_post_meta($unit_id, 'rel_type', true);
+    $m2 = get_post_meta($rel_type, 'm2', true);
+    $m3 = get_post_meta($rel_type, 'm3', true);
+    $size = "";
+
+    // Check and format both m2 and m3 values if they exist
+    if ($m2 && $m2) {
+        // Both m2 and m3 exist
+        $size = str_replace('.', ',', $m2) . " m2 / " . str_replace('.', ',', $m3) . " m3";
+    } elseif ($m2) {
+        // Only m2 exists
+        $size = str_replace('.', ',', $m2) . " m2";
+    } elseif ($m3) {
+        // Only m3 exists
+        $size = str_replace('.', ',', $m3) . " m3";
+    }
+    return $size;
+}
+
+function construct_unit_type_string($unit_id)
+{
+    $rel_type = get_post_meta($unit_id, 'rel_type', true);
+    $type = get_post_meta($rel_type, 'unit_type', true);
+
+    $unit_type_string = "";
+
+    switch ($type) {
+        case "indoor":
+            $unit_type_string = "Indendørs depotrum";
+            break;
+        case "container":
+            $unit_type_string = "Container";
+            break;
+        case "unit_in_container":
+            $unit_type_string = "Depotrum i container";
+            break;
+        case "garage":
+            $unit_type_string = "Garage";
+            break;
+        case "classic_storage":
+            $unit_type_string = "Opmagasinering";
+            break;
+        case "big_box":
+            $unit_type_string = "Big box";
+            break;
+        case "motorcycle":
+            $unit_type_string = "Motorcykel";
+            break;
+        case "car":
+            $unit_type_string = "Bil";
+            break;
+        case "autocamper":
+            $unit_type_string = "Autocamper";
+            break;
+    }
+    return $unit_type_string;
+}
 add_action('wp_ajax_nopriv_booking_form_action', 'handle_booking_form');
 add_action('wp_ajax_booking_form_action', 'handle_booking_form');
