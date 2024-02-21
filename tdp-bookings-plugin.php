@@ -12,6 +12,23 @@ function custom_rewrite_booking_confirmation()
 {
     add_rewrite_rule('^reservation/confirmation/([0-9]+)/?$', 'index.php?pagename=reservation-confirmation&booking_id=$matches[1]', 'top');
 }
+
+function tdp_bookings_activate()
+{
+    // call the function that adds the rewrite rule
+    custom_rewrite_booking_confirmation();
+    // flush rewrite rules to ensure the new rule is saved to the database
+    flush_rewrite_rules();
+}
+register_activation_hook(__FILE__, 'tdp_bookings_activate');
+
+function tdp_bookings_deactivate()
+{
+    // flush rules on deactivation as well
+    flush_rewrite_rules();
+}
+register_deactivation_hook(__FILE__, 'tdp_bookings_deactivate');
+
 add_action('init', 'custom_rewrite_booking_confirmation');
 
 function custom_query_vars_filter($vars)
