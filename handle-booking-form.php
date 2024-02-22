@@ -49,6 +49,8 @@ function handle_booking_form()
     //get information about the unit
     $unit_price = get_post_meta($unit_id, 'price', true);
 
+    $supplier_unit_id = get_post_meta($unit_id, 'supplier_unit_id', true);
+
     $rel_lokation_id = get_post_meta($unit_id, 'rel_lokation', true);
 
     $supplier_email = get_post_meta($rel_lokation_id, 'email_address', true);
@@ -78,6 +80,7 @@ function handle_booking_form()
             'direct_booking_active' => $direct_booking_active,
             'unit_link' => $unit_id,
             'booking_link' => $booking_link,
+            'supplier_unit_id' => $supplier_unit_id,
             'supplier_email_address' => $supplier_email,
             'department_name' => $lokation_name,
             'rel_lokation' => $rel_lokation_id,
@@ -95,14 +98,23 @@ function handle_booking_form()
     ));
 
     //update booking post title
-
-    $post_title = 'Reservation #' . $booking_post_id . ': ' . $first_name . ' ' . $last_name . ' - ' . $type_string . ' (Enhed #' . $unit_id . ' - ' . $size_string . ')';
+    $post_title = construct_post_title($first_name, $last_name, $type_string, $supplier_unit_id,   $unit_id, $size_string, $booking_post_id);
     wp_update_post(array(
         'ID' => $booking_post_id,
         'post_title' => $post_title,
     ));
 
     exit();
+}
+
+function construct_post_title($first_name, $last_name, $type_string, $supplier_unit_id, $unit_id, $size_string, $booking_post_id)
+{
+    if ($supplier_unit_id) {
+        $unit_id_string = '#' . $unit_id . ' (' . $supplier_unit_id . ')';
+    } else {
+        $unit_id_string = '#' . $unit_id;
+    }
+    return 'Reservation #' . $booking_post_id . ': ' . $first_name . ' ' . $last_name . ' - ' . $type_string . ' (' . $unit_id_string . ' - ' . $size_string . ')';
 }
 
 function get_move_in_date($post)

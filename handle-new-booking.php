@@ -3,6 +3,7 @@
 
 function handle_new_booking($post_id)
 {
+    xdebug_break();
     trigger_error('handle_new_booking triggered', E_USER_NOTICE);
     $booking_post = get_post($post_id);
     if ($booking_post->post_type === 'booking') {
@@ -41,6 +42,12 @@ function notify_supplier($booking_post)
     $email_body .= "<b>Tidspunkt:</b> " . $booking_info['time_of_booking'] . "<br>";
 
     $email_body .= "<h3>Enhed</h3>";
+    if ($booking_info['supplier_unit_id']) {
+        $email_body .= "<b>Enhedens ID hos udbyder:</b> " . $booking_info['supplier_unit_id'] . "<br>";
+        $email_body .= "<b>Enhedens ID hos tjekdepot:</b> #" . $booking_info['unit_link'] . "<br>";
+    } else {
+        $email_body .= "<b>Enhedens ID hos tjekdepot:</b> #" . $booking_info['unit_link'] . "<br>";
+    }
     $email_body .= "<b>Pris:</b> " . $booking_info['unit_price'] . "<br>";
     $email_body .= "<b>Afdeling:</b> " . $booking_info['lokation_name'] . "<br>";
 
@@ -53,7 +60,7 @@ function notify_supplier($booking_post)
     $email_body .= "<b>Indflytningsdato:</b> " . $booking_info['move_in_date_string'] . "<br>";
 
     $email_body .= "<h3>Diverse</h3>";
-    $email_body .= "<b>Enhedens ID:</b> " . $booking_info['unit_link'] . "<br>";
+
     if ($booking_info['booking_link']) {
         $email_body .= "<b>Booking-link:</b> " . $booking_info['booking_link'] . "<br>";
     }
@@ -89,6 +96,8 @@ function notify_admin($booking_post)
 
     $email_body .= "<h3>Enhed</h3>";
     $email_body .= "<b>Enhedens pris:</b> " . $booking_info['unit_price'] . "<br>";
+    $email_body .= "<b>Enhedens ID:</b> " . $booking_info['unit_link'] . "<br>";
+    $email_body .= "<b>Enhedens ID hos supplier:</b> " . $booking_info['supplier_unit_id'] . "<br>";
     $email_body .= "<b>Lokationens navn:</b> " . $booking_info['lokation_name'] . "<br>";
     $email_body .= "<b>Lokationens ID:</b> " . $booking_info['rel_lokation'] . "<br>";
     $email_body .= "<b>Udlejerens email-adresse:</b> " . $booking_info['supplier_email'] . "<br>";
@@ -104,7 +113,6 @@ function notify_admin($booking_post)
     $email_body .= "<b>Indflytningsdato ukendt?:</b> " . $booking_info['move_in_date_unknown'] . "<br>";
 
     $email_body .= "<h3>Diverse</h3>";
-    $email_body .= "<b>Link til enhed:</b> " . $booking_info['unit_link'] . "<br>";
     $email_body .= "<b>Eventuelt booking-link:</b> " . $booking_info['booking_link'] . "<br><br>";
 
     $email_body .= "<b>Udlejerens adresse:</b> " . $booking_info['department_address'] . "<br>";
@@ -133,6 +141,7 @@ function gather_booking_info($post)
     $supplier_booking_email_disabled = get_post_meta($post->ID, 'supplier_booking_email_disabled', true);
     $direct_booking_active = get_post_meta($post->ID, 'direct_booking_active', true);
     $booking_link = get_post_meta($post->ID, 'booking_link', true);
+    $supplier_unit_id = get_post_meta($post->ID, 'supplier_unit_id', true);
     $supplier_email = get_post_meta($post->ID, 'supplier_email_address', true);
     $lokation_name = get_post_meta($post->ID, 'department_name', true);
     $rel_lokation = get_post_meta($post->ID, 'rel_lokation', true);
@@ -158,6 +167,7 @@ function gather_booking_info($post)
         'direct_booking_active' => $direct_booking_active,
         'unit_link' => $unit_link,
         'booking_link' => $booking_link,
+        'supplier_unit_id' => $supplier_unit_id,
         'supplier_email' => $supplier_email,
         'lokation_name' => $lokation_name,
         'rel_lokation' => $rel_lokation,
