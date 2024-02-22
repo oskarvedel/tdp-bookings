@@ -98,7 +98,7 @@ function handle_booking_form()
     ));
 
     //update booking post title
-    $post_title = construct_post_title($first_name, $last_name, $type_string, $supplier_unit_id,   $unit_id, $size_string, $booking_post_id);
+    $post_title = "Reservation " . construct_post_title($first_name, $last_name, $type_string, $supplier_unit_id,   $unit_id, $size_string, $booking_post_id);
     wp_update_post(array(
         'ID' => $booking_post_id,
         'post_title' => $post_title,
@@ -114,7 +114,7 @@ function construct_post_title($first_name, $last_name, $type_string, $supplier_u
     } else {
         $unit_id_string = '#' . $unit_id;
     }
-    return 'Reservation #' . $booking_post_id . ': ' . $first_name . ' ' . $last_name . ' - ' . $type_string . ' (' . $unit_id_string . ' - ' . $size_string . ')';
+    return $booking_post_id . ': ' . $first_name . ' ' . $last_name . ' - ' . $type_string . ' (' . $unit_id_string . ' - ' . $size_string . ')';
 }
 
 function get_move_in_date($post)
