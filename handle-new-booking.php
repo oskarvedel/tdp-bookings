@@ -3,7 +3,6 @@
 
 function handle_new_booking($post_id)
 {
-    xdebug_break();
     trigger_error('handle_new_booking triggered', E_USER_NOTICE);
     $booking_post = get_post($post_id);
     if ($booking_post->post_type === 'booking') {
