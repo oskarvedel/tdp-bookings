@@ -2,13 +2,49 @@
 
 function handle_booking_form()
 {
-    // xdebug_break();
+    session_start();
+
+    //rate limit form submissions
+    $ip_address = $_SERVER['REMOTE_ADDR']; // Get the user's IP address
+    $submission_time = time();
+    $limit = 1; // Limit for submissions
+    $time_frame = 60 * 30; // 30 minutes in seconds
+
+    // Initialize if not set
+    if (!isset($_SESSION['submissions'])) {
+        $_SESSION['submissions'] = [];
+    }
+
+    // Clean up old submissions
+    foreach ($_SESSION['submissions'] as $key => $time) {
+        if ($submission_time - $time > $time_frame) {
+            unset($_SESSION['submissions'][$key]);
+        }
+    }
+
+    // Check rate limit
+    if (count($_SESSION['submissions']) < $limit) {
+        $_SESSION['submissions'][] = $submission_time;
+        // Process form submission here
+    } else {
+        // Block submission or return an error
+        trigger_error('Booking Form submission error: Rate limit exceeded.', E_USER_ERROR);
+        echo "You're doing that too much. Please try again later.";
+    }
+
     $unit_id = $_POST['unit_id'];
 
-    // Optional: Check for nonce for security
+    // Check for nonce for security
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'booking_form_nonce_action')) {
-        wp_die('Security check failed');
+        trigger_error('Booking Form submission error: Nonce check failed.', E_USER_ERROR);
+        wp_die('Nonce security check failed');
     }
+    // Check for honeypot field
+    if (!empty($_POST['honeypot'])) {
+        trigger_error('Booking Form submission error: Honeypot field filled.', E_USER_ERROR);
+        wp_die('Honeypot security check failed');
+    }
+
 
     // Check if the form data is set
     if (!isset($_POST['first_name']) && isset($_POST['last_name']) && isset($_POST['email']) && isset($_POST['phone']) && isset($_POST['move_in_date'])) {
