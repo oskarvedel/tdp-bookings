@@ -6,9 +6,9 @@ function handle_booking_form()
     $unit_id = $_POST['unit_id'];
 
     // Optional: Check for nonce for security
-    // if (!isset($_POST['my_nonce_field']) || !wp_verify_nonce($_POST['my_nonce_field'], 'my_nonce_action')) {
-    //     wp_die('Security check failed');
-    // }
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'booking_form_nonce_action')) {
+        wp_die('Security check failed');
+    }
 
     // Check if the form data is set
     if (!isset($_POST['first_name']) && isset($_POST['last_name']) && isset($_POST['email']) && isset($_POST['phone']) && isset($_POST['move_in_date'])) {
